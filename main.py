@@ -15,10 +15,13 @@ class LiveCamera:
                 break
 
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray_frame = cv2.GaussianBlur(gray_frame, (61, 61), 0)
             _, threshold = cv2.threshold(gray_frame, 30, 255, cv2.THRESH_BINARY)
             contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             for contour in contours:
+                if cv2.contourArea(contour) < 700:
+                    continue
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
