@@ -7,7 +7,12 @@ class LiveCamera:
 
     def start_capture(self):
         cap = cv2.VideoCapture(self.http)
-        first_frame = None
+
+        # Read initial frame for comparison
+        ret_init, frame_init = cap.read()
+        gray_frame_init = cv2.cvtColor(frame_init, cv2.COLOR_BGR2GRAY)
+        gray_frame_init = cv2.GaussianBlur(gray_frame_init, (61, 61), 0)
+        cv2.imshow('Win1', frame_init)
 
         while True:
             ret, frame = cap.read()
@@ -19,14 +24,10 @@ class LiveCamera:
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray_frame = cv2.GaussianBlur(gray_frame, (61, 61), 0)
 
-            # If the firts frame os None, initialize it
-            if first_frame is None:
-                first_frame = gray_frame
-                continue
-
             # Compute difference between current and first frame
-            frame_delta = cv2.absdiff(first_frame, gray_frame)
+            frame_delta = cv2.absdiff(gray_frame_init, gray_frame)
             _, threshold = cv2.threshold(frame_delta, 30, 255, cv2.THRESH_BINARY)
+            threshold = cv2.dilate(threshold, None)
             # Find contours on the thresholded image
             contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -49,7 +50,7 @@ class LiveCamera:
 
 
 if __name__ == "__main__":
-    http_url = 'http://192.168.68.100:8080'
+    http_url = 'http://192.168.68.114:8080'
 
     run = LiveCamera(http_url)
     run.start_capture()
