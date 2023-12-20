@@ -20,8 +20,10 @@ class LiveCamera:
 
         while True:
             ret, frame = cap.read()
+
             # date and time display text
-            date = str(datetime.datetime.now())
+            date = str(datetime.datetime.now().replace(microsecond=0))
+
             # Text if no movement is detected
             text = f"No movement {date}"
             if not ret:
@@ -45,12 +47,11 @@ class LiveCamera:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 text = f"Movement {date}"
 
-                # Save output
-                out.write(frame)
-
             cv2.putText(img=frame, text="Status: {}".format(text), org=(30, 20),
                         fontFace=0, fontScale=0.8, color=(0, 0, 255), thickness=3)
             cv2.imshow('Motion Detection', frame)
+            # Save output
+            out.write(frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
